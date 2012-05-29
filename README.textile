@@ -1,3 +1,25 @@
+The key difference in drewda_delayed_job is that jobs can be unique. All the relevant changes are in `lib/delayed/backend/base.rb`.
+
+This should be used with the drewda_delayed_job_active_record gem.
+
+Note that I'm assuming you already have your migration set up to create a table that includes `is_locked` and `unique_id` fields:
+
+    create_table "delayed_jobs", :force => true do |t|
+      t.integer  "priority",                         :default => 0
+      t.integer  "attempts",                         :default => 0
+      t.text     "handler",    :limit => 2147483647
+      t.string   "last_error"
+      t.datetime "run_at"
+      t.datetime "locked_at"
+      t.datetime "failed_at"
+      t.string   "locked_by"
+      t.datetime "created_at",                                          :null => false
+      t.datetime "updated_at",                                          :null => false
+      t.string   "unique_id"
+      t.boolean  "is_locked",                        :default => false
+      t.string   "queue"
+    end
+
 h1. Delayed::Job "!http://travis-ci.org/collectiveidea/delayed_job.png!":http://travis-ci.org/collectiveidea/delayed_job "!https://gemnasium.com/collectiveidea/delayed_job.png?travis!":https://gemnasium.com/collectiveidea/delayed_job
 
 Delayed_job (or DJ) encapsulates the common pattern of asynchronously executing longer tasks in the background.

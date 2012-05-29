@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name              = 'delayed_job'
+  s.name              = 'drewda_delayed_job'
   s.version           = '3.0.3'
   s.authors           = ["Matt Griffin", "Brian Ryckbost", "Steve Richert", "Chris Gaffney", "Brandon Keepers", "Tobias L\303\274tke"]
   s.summary           = 'Database-backed asynchronous priority queue system -- Extracted from Shopify'

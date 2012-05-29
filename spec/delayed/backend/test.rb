@@ -50,7 +50,7 @@ module Delayed
         def self.create!(*args); create(*args); end
 
         def self.clear_locks!(worker_name)
-          all.select{|j| j.locked_by == worker_name}.each {|j| j.locked_by = nil; j.locked_at = nil}
+          all.select{|j| j.locked_by == worker_name}.each {|j| j.locked_by = nil; j.locked_at = nil; j.is_locked = false}
         end
 
         # Find a few candidate jobs to run (in case some immediately get locked by others).
@@ -75,6 +75,7 @@ module Delayed
             # We don't own this job so we will update the locked_by name and the locked_at
             self.locked_at = now
             self.locked_by = worker
+            self.is_locked = true
           end
 
           return true

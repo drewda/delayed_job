@@ -38,6 +38,43 @@ module Delayed
           end
         end
 
+        # Add a unique job to the queue
+        def enqueue_unique(*args)
+         options = {
+            :priority => Delayed::Worker.default_priority
+          }.merge!(args.extract_options!)
+
+          options[:payload_object] ||= args.shift
+
+          if args.size > 0
+            warn "[DEPRECATION] Passing multiple arguments to `#enqueue` is deprecated. Pass a hash with :priority and :run_at."
+            options[:unique_id] = args.first
+            options[:priority]  = args[1] || options[:priority]
+            options[:run_at]    = args[2]
+          end
+
+          unless options[:payload_object].respond_to?(:perform)
+            raise ArgumentError, 'Cannot enqueue items which do not respond to perform'
+          end
+
+          uncached do
+            if Job.where(:unique_id => options[:unique_id], :is_locked => false).length == 0
+              if Delayed::Worker.delay_jobs
+                self.new(options).tap do |job|
+                  Delayed::Worker.lifecycle.run_callbacks(:enqueue, job) do
+                    job.hook(:enqueue)
+                    job.save
+                  end
+                end
+              else
+                Delayed::Job.new(:payload_object => options[:payload_object]).tap do |job|
+                  job.invoke_job
+                end
+              end
+            end
+          end
+        end
+
         def reserve(worker, max_run_time = Worker.max_run_time)
           # We get up to 5 jobs from the db. In case we cannot get exclusive access to a job we try the next.
           # this leads to a more even distribution of jobs across the worker processes
@@ -106,6 +143,7 @@ module Delayed
       def unlock
         self.locked_at    = nil
         self.locked_by    = nil
+        self.is_locked    = false
       end
 
       def hook(name, *args)
