@@ -44,9 +44,7 @@ module Delayed
     # (perhaps to inspect the reason for the failure), set this to false.
     self.destroy_failed_jobs = true
 
-    self.logger = if defined?(Delayed::Worker)
-      Delayed::Worker.logger
-    elsif defined?(Rails)
+    self.logger = if defined?(Rails)
       Rails.logger
     elsif defined?(RAILS_DEFAULT_LOGGER)
       RAILS_DEFAULT_LOGGER
